@@ -1,6 +1,8 @@
+from django.db import transaction
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 
+from backend.settings import MIN_COOKING_TIME, MIN_INGR_AMOUNT
 from recipes.models import (Favorite, Ingredient, IngredientAmount, Recipe,
                             ShoppingCart, Tag)
 from users.serializers import CustomUserSerializer
@@ -56,7 +58,8 @@ class RecipeListSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def get_ingredients(self, obj):
-        queryset = IngredientAmount.objects.filter(recipe=obj)
+        recipe = obj
+        queryset = recipe.amounts.all()
         return IngredientAmountSerializer(queryset, many=True).data
 
     def get_is_favorited(self, obj):
@@ -112,7 +115,7 @@ class RecipeSerializer(serializers.ModelSerializer):
                 })
             ingredients_list.append(ingredient_id)
             amount = ingredient['amount']
-            if int(amount) <= 0:
+            if int(amount) < MIN_INGR_AMOUNT:
                 raise serializers.ValidationError({
                     'amount': 'Количество ингредиента должно быть больше нуля!'
                 })
@@ -131,7 +134,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             tags_list.append(tag)
 
         cooking_time = data['cooking_time']
-        if int(cooking_time) <= 0:
+        if int(cooking_time) < MIN_COOKING_TIME:
             raise serializers.ValidationError({
                 'cooking_time': 'Время приготовления должно быть больше 0!'
             })
@@ -150,6 +153,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         for tag in tags:
             recipe.tags.add(tag)
 
+    @transaction.atomic
     def create(self, validated_data):
         author = self.context.get('request').user
         tags = validated_data.pop('tags')
@@ -164,6 +168,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         context = {'request': request}
         return RecipeListSerializer(instance, context=context).data
 
+    @transaction.atomic
     def update(self, instance, validated_data):
         instance.tags.clear()
         IngredientAmount.objects.filter(recipe=instance).delete()

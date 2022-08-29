@@ -1,3 +1,4 @@
+from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -10,6 +11,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
+from backend.settings import CONTENT_TYPE, FILENAME
 from recipes.models import (Favorite, Ingredient, IngredientAmount, Recipe,
                             ShoppingCart, Tag)
 from recipes.filters import IngredientSearchFilter, RecipeFilter
@@ -74,7 +76,7 @@ class RecipeViewSet(ModelViewSet):
         model_obj.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @action(detail=True, methods=["POST"],
+    @action(detail=True, methods=('POST',),
             permission_classes=[IsAuthenticated])
     def favorite(self, request, pk):
         return self.post_method_for_actions(
@@ -85,7 +87,7 @@ class RecipeViewSet(ModelViewSet):
         return self.delete_method_for_actions(
             request=request, pk=pk, model=Favorite)
 
-    @action(detail=True, methods=["POST"],
+    @action(detail=True, methods=('POST',),
             permission_classes=[IsAuthenticated])
     def shopping_cart(self, request, pk):
         return self.post_method_for_actions(
@@ -96,12 +98,15 @@ class RecipeViewSet(ModelViewSet):
         return self.delete_method_for_actions(
             request=request, pk=pk, model=ShoppingCart)
 
-    @action(detail=False, methods=['get'],
+    @action(detail=False, methods=('GET',),
             permission_classes=[IsAuthenticated])
     def download_shopping_cart(self, request):
         final_list = {}
         ingredients = IngredientAmount.objects.filter(
-            recipe__carts__user=request.user).values_list(
+            recipe__carts__user=request.user).values(
+                'ingredient__name',
+                'ingredient__measurement_unit').annotate(amount=Sum('amount'))
+        ingredients.values_list(
             'ingredient__name', 'ingredient__measurement_unit',
             'amount'
         )
@@ -112,13 +117,11 @@ class RecipeViewSet(ModelViewSet):
                     'measurement_unit': item[1],
                     'amount': item[2]
                 }
-            else:
-                final_list[name]['amount'] += item[2]
         pdfmetrics.registerFont(
             TTFont('Handicraft', 'data/Handicraft.ttf', 'UTF-8'))
-        response = HttpResponse(content_type='application/pdf')
+        response = HttpResponse(content_type=CONTENT_TYPE)
         response['Content-Disposition'] = ('attachment; '
-                                           'filename="shopping_list.pdf"')
+                                           f'filename={FILENAME}')
         page = canvas.Canvas(response)
         page.setFont('Handicraft', size=24)
         page.drawString(200, 800, 'Список покупок')

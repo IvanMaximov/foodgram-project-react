@@ -30,19 +30,6 @@ class FollowViewSet(APIView):
 
     def post(self, request, *args, **kwargs):
         user_id = self.kwargs.get('user_id')
-        if user_id == request.user.id:
-            return Response(
-                {'error': 'Нельзя подписаться на себя'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        if Follow.objects.filter(
-                user=request.user,
-                author_id=user_id
-        ).exists():
-            return Response(
-                {'error': 'Вы уже подписаны на пользователя'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
         author = get_object_or_404(User, id=user_id)
         Follow.objects.create(
             user=request.user,

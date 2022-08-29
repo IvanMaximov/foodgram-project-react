@@ -11,6 +11,9 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -20,10 +23,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'imhwfp463aene(zp^fofe6a(lq%ubxf^u1v398yfz7y5+#xuy6'
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = []
 
@@ -44,7 +47,6 @@ INSTALLED_APPS = [
     'djoser',
     'recipes',
     'users',
-    'api',
 ]
 
 MIDDLEWARE = [
@@ -154,3 +156,13 @@ DJOSER = {
 }
 
 AUTH_USER_MODEL = 'users.User'
+
+# Минимальное время приготовления блюда
+MIN_COOKING_TIME = 1
+
+# Мнимиальное количество ингредиентов
+MIN_INGR_AMOUNT = 1
+
+CONTENT_TYPE = 'application/pdf'
+
+FILENAME = "shopping_list.pdf"

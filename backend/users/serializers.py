@@ -1,8 +1,10 @@
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 
 from recipes.models import Recipe
 from users.models import Follow, User
+from users.validators import self_subscription_validator
 
 
 class CustomUserCreateSerializer(UserCreateSerializer):
@@ -78,6 +80,14 @@ class FollowSerializer(CustomUserSerializer):
         model = User
         fields = ('email', 'id', 'username', 'first_name', 'last_name',
                   'is_subscribed', 'recipes', 'recipes_count')
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Follow.objects.all(),
+                fields=['user', 'author'],
+                message='Вы уже подписаны на пользователя'
+            ),
+            self_subscription_validator,
+        ]
 
     @staticmethod
     def get_recipes_count(obj):
