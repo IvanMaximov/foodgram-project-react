@@ -17,7 +17,7 @@ class CustomUserViewSet(UserViewSet):
     """
     queryset = User.objects.all()
     serializer_class = CustomUserSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
 
 class FollowViewSet(APIView):
@@ -25,7 +25,7 @@ class FollowViewSet(APIView):
     APIView для добавления и удаления подписки на автора
     """
     serializer_class = FollowSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = (IsAuthenticated,)
     pagination_class = CustomPageNumberPagination
 
     def post(self, request, *args, **kwargs):
@@ -61,7 +61,7 @@ class FollowListView(ListAPIView):
     APIView для просмотра подписок.
     """
     serializer_class = FollowSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = (IsAuthenticated,)
     pagination_class = CustomPageNumberPagination
 
     def get_queryset(self):

@@ -11,7 +11,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
-from backend.settings import CONTENT_TYPE, FILENAME
+from backend.settings import FILENAME
 from recipes.models import (Favorite, Ingredient, IngredientAmount, Recipe,
                             ShoppingCart, Tag)
 from recipes.filters import IngredientSearchFilter, RecipeFilter
@@ -20,6 +20,8 @@ from recipes.permissions import IsAuthorOrReadOnly
 from recipes.serializers import (FavoriteSerializer, IngredientSerializer,
                                  RecipeListSerializer, RecipeSerializer,
                                  ShoppingCartSerializer, TagSerializer)
+
+CONTENT_TYPE = 'application/pdf'
 
 
 class TagsViewSet(ReadOnlyModelViewSet):
@@ -40,7 +42,7 @@ class IngredientsViewSet(ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     permission_classes = (AllowAny, )
     serializer_class = IngredientSerializer
-    filter_backends = [IngredientSearchFilter]
+    filter_backends = (IngredientSearchFilter,)
     search_fields = ('^name',)
 
 
@@ -50,8 +52,8 @@ class RecipeViewSet(ModelViewSet):
     Для анонимов разрешен только просмотр рецептов.
     """
     queryset = Recipe.objects.all()
-    permission_classes = [IsAuthorOrReadOnly]
-    filter_backends = [DjangoFilterBackend]
+    permission_classes = (IsAuthorOrReadOnly,)
+    filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
     pagination_class = CustomPageNumberPagination
 
