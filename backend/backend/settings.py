@@ -185,5 +185,3 @@ MIN_INGR_AMOUNT = 1
 CONTENT_TYPE = 'application/pdf'
 
 FILENAME = 'shopping_list.pdf'
-
-f = 3
