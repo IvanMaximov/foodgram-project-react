@@ -2,14 +2,10 @@ FROM python:3.7
 
 WORKDIR /app
 
-COPY requirement.txt .
+COPY requirements.txt .
 
-RUN apt update && \
-    apt upgrade -y && \
-    apt -y install gcc && \
-    python3 -m pip install --upgrade pip && \
-    pip install -r requirement.txt --no-cache-dir
+RUN pip3 install -r requirements.txt --no-cache-dir
 
-COPY . ./
+COPY . .
 
-CMD ["gunicorn", "foodgram.wsgi:application", "--bind", "0:5000"]
+CMD ["gunicorn", "backend.wsgi:application", "--bind", "0:8000" ]

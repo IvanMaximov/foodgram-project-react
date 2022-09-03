@@ -28,8 +28,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['51.250.96.252', 'localhost', '127.0.0.1']
-
+ALLOWED_HOSTS = ['51.250.24.1', 'localhost', '127.0.0.1']
 
 # Application definition
 
@@ -48,8 +47,6 @@ INSTALLED_APPS = [
     'recipes',
     'users',
 ]
-
-FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -142,11 +139,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_URL = "/backend_static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "backend_static")
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/backend_media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'backend_media')
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
